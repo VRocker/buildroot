@@ -1300,6 +1300,7 @@ endif
 	source "package/mpdecimal/Config.in"
 	source "package/mpfr/Config.in"
 	source "package/msgpack/Config.in"
+	source "package/msgpackc/Config.in"
 	source "package/mtdev2tuio/Config.in"
 	source "package/netbsd-queue/Config.in"
 	source "package/openblas/Config.in"
