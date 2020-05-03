@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-SCONESERVER_VERSION = bbb384404575f8a3ef31c1ec41218b621b66ab27
+SCONESERVER_VERSION = 6b932d7d8dbb700b830205e7111e469cefff490c
 SCONESERVER_SITE = $(call github,sconemad,sconeserver,$(SCONESERVER_VERSION))
-SCONESERVER_LICENSE = GPLv2+
+SCONESERVER_LICENSE = GPL-2.0+
 SCONESERVER_LICENSE_FILES = COPYING
 # fetching from Git, we need to generate the configure script
 SCONESERVER_AUTORECONF = YES
-SCONESERVER_DEPENDENCIES += pcre
+SCONESERVER_DEPENDENCIES = host-pkgconf pcre zlib
 # disable markdown module because its git submodule cmark
 # https://github.com/sconemad/sconeserver/tree/master/markdown
 # has no cross-compile support provided by the sconeserver build system
@@ -25,9 +25,6 @@ endif
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 SCONESERVER_DEPENDENCIES += openssl
 SCONESERVER_CONF_OPTS += --with-ssl
-ifeq ($(BR2_STATIC_LIBS),y)
-SCONESERVER_CONF_ENV += SSL_LIBADD=-lz
-endif
 else
 SCONESERVER_CONF_OPTS += --without-ssl
 endif
@@ -46,7 +43,7 @@ SCONESERVER_CONF_OPTS += --without-sconesite
 endif
 
 ifeq ($(BR2_PACKAGE_SCONESERVER_HTTP_SCONESITE_IMAGE),y)
-SCONESERVER_DEPENDENCIES += imagemagick host-pkgconf
+SCONESERVER_DEPENDENCIES += imagemagick
 SCONESERVER_CONF_OPTS += \
 	--with-sconesite-image \
 	--with-Magick++-config="$(STAGING_DIR)/usr/bin/Magick++-config"
@@ -65,7 +62,7 @@ SCONESERVER_CONF_OPTS += --without-mysql
 endif
 
 ifeq ($(BR2_PACKAGE_SCONESERVER_BLUETOOTH),y)
-SCONESERVER_DEPENDENCIES += bluez_utils
+SCONESERVER_DEPENDENCIES += bluez5_utils
 SCONESERVER_CONF_OPTS += --with-bluetooth
 else
 SCONESERVER_CONF_OPTS += --without-bluetooth
@@ -79,7 +76,7 @@ SCONESERVER_CONF_OPTS += --without-rss
 endif
 
 ifeq ($(BR2_PACKAGE_SCONESERVER_LOCATION),y)
-SCONESERVER_DEPENDENCIES += host-pkgconf gpsd
+SCONESERVER_DEPENDENCIES += gpsd
 SCONESERVER_CONF_OPTS += --with-location
 else
 SCONESERVER_CONF_OPTS += --without-location

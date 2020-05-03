@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-CPIO_VERSION = 2.12
-CPIO_SITE = http://ftp.gnu.org/gnu/cpio
+CPIO_VERSION = 2.13
+CPIO_SOURCE = cpio-$(CPIO_VERSION).tar.bz2
+CPIO_SITE = $(BR2_GNU_MIRROR)/cpio
 CPIO_CONF_OPTS = --bindir=/bin
-CPIO_DEPENDENCIES = $(if $(BR2_PACKAGE_BUSYBOX),busybox)
-CPIO_LICENSE = GPLv3+
+CPIO_LICENSE = GPL-3.0+
 CPIO_LICENSE_FILES = COPYING
 
 # cpio uses argp.h which is not provided by uclibc or musl by default.
@@ -18,3 +18,4 @@ CPIO_DEPENDENCIES += argp-standalone
 endif
 
 $(eval $(autotools-package))
+$(eval $(host-autotools-package))

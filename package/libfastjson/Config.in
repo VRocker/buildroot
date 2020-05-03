@@ -1,7 +1,7 @@
 config BR2_PACKAGE_LIBFASTJSON
 	bool "libfastjson"
-	# uses __sync_val_compare_and_swap_4
-	depends on BR2_TOOLCHAIN_HAS_SYNC_4
+	# uses the __sync_*_4 intrisics, or pthreads to emulate atomicity
+	depends on BR2_TOOLCHAIN_HAS_SYNC_4 || BR2_TOOLCHAIN_HAS_THREADS
 	help
 	  Libfastjson - A fast json library for C
 
@@ -10,7 +10,8 @@ config BR2_PACKAGE_LIBFASTJSON
 	  Its aim is to provide:
 
 	  - a small library with essential json handling functions
-	  - sufficiently good json support (not 100% standards compliant)
+	  - sufficiently good json support (not 100% standards
+	    compliant)
 	  - be very fast in processing
 
 	  https://github.com/rsyslog/libfastjson/

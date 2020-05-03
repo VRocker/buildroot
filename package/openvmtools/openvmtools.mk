@@ -4,19 +4,31 @@
 #
 ################################################################################
 
-OPENVMTOOLS_VERSION = stable-9.10.2
-OPENVMTOOLS_SITE = $(call github,vmware,open-vm-tools,$(OPENVMTOOLS_VERSION))
-OPENVMTOOLS_SUBDIR = open-vm-tools
-OPENVMTOOLS_LICENSE = LGPLv2.1
-OPENVMTOOLS_LICENSE_FILES = $(OPENVMTOOLS_SUBDIR)/COPYING
-# Autoreconf needed or config/missing will run configure again at buildtime
+OPENVMTOOLS_VERSION_MAJOR = 10.3.5
+OPENVMTOOLS_VERSION = $(OPENVMTOOLS_VERSION_MAJOR)-10430147
+OPENVMTOOLS_SITE = https://github.com/vmware/open-vm-tools/releases/download/stable-$(OPENVMTOOLS_VERSION_MAJOR)
+OPENVMTOOLS_SOURCE = open-vm-tools-$(OPENVMTOOLS_VERSION).tar.gz
+OPENVMTOOLS_LICENSE = LGPL-2.1
+OPENVMTOOLS_LICENSE_FILES = COPYING
+
+# configure.ac is patched
 OPENVMTOOLS_AUTORECONF = YES
 OPENVMTOOLS_CONF_OPTS = --with-dnet \
 	--without-icu --without-x --without-gtk2 \
 	--without-gtkmm --without-kernel-modules \
 	--disable-deploypkg --without-xerces
-OPENVMTOOLS_CONF_ENV += CUSTOM_DNET_CPPFLAGS=" "
-OPENVMTOOLS_DEPENDENCIES = libglib2 libdnet
+OPENVMTOOLS_CONF_ENV += \
+	CUSTOM_DNET_CPPFLAGS=" " \
+	LIBS=$(TARGET_NLS_LIBS)
+OPENVMTOOLS_DEPENDENCIES = \
+	host-nfs-utils \
+	libglib2 \
+	libdnet \
+	$(TARGET_NLS_DEPENDENCIES)
+
+ifeq ($(BR2_PACKAGE_LIBTIRPC),y)
+OPENVMTOOLS_DEPENDENCIES += libtirpc
+endif
 
 # When libfuse is available, openvmtools can build vmblock-fuse, so
 # make sure that libfuse gets built first
@@ -31,13 +43,6 @@ else
 OPENVMTOOLS_CONF_OPTS += --without-ssl
 endif
 
-ifeq ($(BR2_PACKAGE_OPENVMTOOLS_PROCPS),y)
-OPENVMTOOLS_CONF_OPTS += --with-procps
-OPENVMTOOLS_DEPENDENCIES += procps-ng
-else
-OPENVMTOOLS_CONF_OPTS += --without-procps
-endif
-
 ifeq ($(BR2_PACKAGE_OPENVMTOOLS_PAM),y)
 OPENVMTOOLS_CONF_OPTS += --with-pam
 OPENVMTOOLS_DEPENDENCIES += linux-pam
@@ -45,12 +50,12 @@ else
 OPENVMTOOLS_CONF_OPTS += --without-pam
 endif
 
-# configure needs execution permission
-define OPENVMTOOLS_PRE_CONFIGURE_CHMOD
-	chmod 0755 $(@D)/$(OPENVMTOOLS_SUBDIR)/configure
-endef
-
-OPENVMTOOLS_PRE_CONFIGURE_HOOKS += OPENVMTOOLS_PRE_CONFIGURE_CHMOD
+ifeq ($(BR2_PACKAGE_OPENVMTOOLS_RESOLUTIONKMS),y)
+OPENVMTOOLS_CONF_OPTS += --enable-resolutionkms
+OPENVMTOOLS_DEPENDENCIES += libdrm udev
+else
+OPENVMTOOLS_CONF_OPTS += --disable-resolutionkms
+endif
 
 # symlink needed by lib/system/systemLinux.c (or will cry in /var/log/messages)
 # defined in lib/misc/hostinfoPosix.c
@@ -73,9 +78,6 @@ endef
 define OPENVMTOOLS_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/openvmtools/vmtoolsd.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/vmtoolsd.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -fs ../../../../usr/lib/systemd/system/vmtoolsd.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/vmtoolsd.service
 endef
 
 $(eval $(autotools-package))

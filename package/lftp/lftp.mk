@@ -4,20 +4,17 @@
 #
 ################################################################################
 
-LFTP_VERSION = 4.7.2
+LFTP_VERSION = 4.9.1
 LFTP_SOURCE = lftp-$(LFTP_VERSION).tar.xz
 LFTP_SITE = http://lftp.yar.ru/ftp
-LFTP_LICENSE = GPLv3+
+LFTP_LICENSE = GPL-3.0+
 LFTP_LICENSE_FILES = COPYING
-# Needed so that our libtool patch applies properly
-LFTP_AUTORECONF = YES
 LFTP_DEPENDENCIES = readline zlib host-pkgconf
 
 # Help lftp finding readline and zlib
 LFTP_CONF_OPTS = \
 	--with-readline=$(STAGING_DIR)/usr \
-	--with-readline-inc=$(STAGING_DIR)/usr/include/readline \
-	--with-readline-lib=$(STAGING_DIR)/usr/lib \
+	--with-readline-lib="`$(PKG_CONFIG_HOST_BINARY) --libs readline`" \
 	--with-zlib=$(STAGING_DIR)/usr
 
 ifneq ($(BR2_STATIC_LIBS),y)
@@ -26,6 +23,9 @@ endif
 
 ifeq ($(BR2_PACKAGE_EXPAT)$(BR2_PACKAGE_LFTP_PROTO_HTTP),yy)
 LFTP_DEPENDENCIES += expat
+LFTP_CONF_OPTS += --with-expat=$(STAGING_DIR)/usr
+else
+LFTP_CONF_OPTS += --without-expat
 endif
 
 ifeq ($(BR2_PACKAGE_GNUTLS),y)
@@ -40,6 +40,13 @@ LFTP_DEPENDENCIES += openssl
 LFTP_CONF_OPTS += --with-openssl
 else
 LFTP_CONF_OPTS += --without-openssl
+endif
+
+ifeq ($(BR2_PACKAGE_LIBIDN2),y)
+LFTP_DEPENDENCIES += libidn2
+LFTP_CONF_OPTS += --with-libidn2=$(STAGING_DIR)/usr
+else
+LFTP_CONF_OPTS += --without-libidn2
 endif
 
 # Remove /usr/share/lftp

@@ -8,14 +8,9 @@ LTRACE_VERSION = c22d359433b333937ee3d803450dc41998115685
 LTRACE_SITE = git://anonscm.debian.org/collab-maint/ltrace.git
 LTRACE_DEPENDENCIES = elfutils
 LTRACE_CONF_OPTS = --disable-werror
-LTRACE_LICENSE = GPLv2
+LTRACE_LICENSE = GPL-2.0
 LTRACE_LICENSE_FILES = COPYING
 LTRACE_AUTORECONF = YES
-
-define LTRACE_CREATE_CONFIG_M4
-	mkdir -p $(@D)/config/m4
-endef
-LTRACE_POST_PATCH_HOOKS += LTRACE_CREATE_CONFIG_M4
 
 # ltrace can use libunwind only if libc has backtrace() support
 # We don't normally do so for uClibc and we can't know if it's external

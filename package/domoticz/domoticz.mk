@@ -4,13 +4,14 @@
 #
 ################################################################################
 
-DOMOTICZ_VERSION = 3.4834
+DOMOTICZ_VERSION = 2020.1
 DOMOTICZ_SITE = $(call github,domoticz,domoticz,$(DOMOTICZ_VERSION))
-DOMOTICZ_LICENSE = GPLv3
+DOMOTICZ_LICENSE = GPL-3.0
 DOMOTICZ_LICENSE_FILES = License.txt
 DOMOTICZ_DEPENDENCIES = \
 	boost \
 	host-pkgconf \
+	jsoncpp \
 	libcurl \
 	lua \
 	mosquitto \
@@ -18,13 +19,19 @@ DOMOTICZ_DEPENDENCIES = \
 	sqlite \
 	zlib
 
+# Disable precompiled header as it needs cmake >= 3.16
+DOMOTICZ_CONF_OPTS = -DUSE_PRECOMPILED_HEADER=OFF
+
 # Due to the dependency on mosquitto, domoticz depends on
-# !BR2_STATIC_LIBS so set USE_STATIC_BOOST to OFF
-DOMOTICZ_CONF_OPTS += -DUSE_STATIC_BOOST=OFF
+# !BR2_STATIC_LIBS so set USE_STATIC_BOOST and USE_OPENSSL_STATIC to OFF
+DOMOTICZ_CONF_OPTS += \
+	-DUSE_STATIC_BOOST=OFF \
+	-DUSE_OPENSSL_STATIC=OFF
 
 # Do not use any built-in libraries which are enabled by default for
-# lua, sqlite and mqtt
+# jsoncpp, lua, sqlite and mqtt
 DOMOTICZ_CONF_OPTS += \
+	-DUSE_BUILTIN_JSONCPP=OFF \
 	-DUSE_BUILTIN_LUA=OFF \
 	-DUSE_BUILTIN_SQLITE=OFF \
 	-DUSE_BUILTIN_MQTT=OFF
@@ -41,6 +48,13 @@ DOMOTICZ_DEPENDENCIES += openzwave
 # domoticz will not find the openzwave library as it searches by
 # default a static library.
 DOMOTICZ_CONF_OPTS += -DUSE_STATIC_OPENZWAVE=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_PYTHON3),y)
+DOMOTICZ_DEPENDENCIES += python3
+DOMOTICZ_CONF_OPTS += -DUSE_PYTHON=ON
+else
+DOMOTICZ_CONF_OPTS += -DUSE_PYTHON=OFF
 endif
 
 # Install domoticz in a dedicated directory (/opt/domoticz) as
@@ -69,9 +83,6 @@ endef
 define DOMOTICZ_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/domoticz/domoticz.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/domoticz.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -sf ../../../../usr/lib/systemd/system/domoticz.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/domoticz.service
 endef
 
 $(eval $(cmake-package))

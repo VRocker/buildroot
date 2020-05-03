@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-PYTHON_PYZMQ_VERSION = 14.3.1
+PYTHON_PYZMQ_VERSION = 19.0.0
 PYTHON_PYZMQ_SOURCE = pyzmq-$(PYTHON_PYZMQ_VERSION).tar.gz
-PYTHON_PYZMQ_SITE = http://pypi.python.org/packages/source/p/pyzmq
-PYTHON_PYZMQ_LICENSE = LGPLv3+, BSD-3c, Apache-2.0
+PYTHON_PYZMQ_SITE = https://files.pythonhosted.org/packages/16/4c/762c2c3063c4d45baf4a49acea7a4f561f7b78a45cd04b58d63f4c5f6b8d
+PYTHON_PYZMQ_LICENSE = LGPL-3.0+, BSD-3-Clause, Apache-2.0
 # Apache license only online: http://www.apache.org/licenses/LICENSE-2.0
 PYTHON_PYZMQ_LICENSE_FILES = COPYING.LESSER COPYING.BSD
 PYTHON_PYZMQ_DEPENDENCIES = zeromq
@@ -21,5 +21,9 @@ define PYTHON_PYZMQ_PATCH_ZEROMQ_VERSION
 endef
 
 PYTHON_PYZMQ_POST_PATCH_HOOKS += PYTHON_PYZMQ_PATCH_ZEROMQ_VERSION
+
+ifeq ($(BR2_PACKAGE_ZEROMQ_DRAFTS),y)
+PYTHON_PYZMQ_BUILD_OPTS += --enable-drafts
+endif
 
 $(eval $(python-package))

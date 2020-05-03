@@ -94,14 +94,14 @@ TI_GFX_HDR_DIRS = OGLES2/EGL OGLES2/EWS OGLES2/GLES2 OGLES2/KHR \
 	OGLES/GLES bufferclass_ti/ pvr2d/ wsegl/
 
 define TI_GFX_EXTRACT_CMDS
-	chmod +x $(DL_DIR)/$(TI_GFX_SOURCE)
-	printf "Y\nY\n qY\n\n" | $(DL_DIR)/$(TI_GFX_SOURCE) \
+	chmod +x $(TI_GFX_DL_DIR)/$(TI_GFX_SOURCE)
+	printf "Y\nY\n qY\n\n" | $(TI_GFX_DL_DIR)/$(TI_GFX_SOURCE) \
 		--prefix $(@D) \
 		--mode console
 endef
 
 define TI_GFX_BUILD_KM_CMDS
-	$(MAKE) $(TI_GFX_KM_MAKE_OPTS) -C $(@D)/GFX_Linux_KM all
+	$(TARGET_MAKE_ENV) $(MAKE) $(TI_GFX_KM_MAKE_OPTS) -C $(@D)/GFX_Linux_KM all
 endef
 
 ifeq ($(BR2_PACKAGE_TI_GFX_DEMOS),y)
@@ -156,7 +156,7 @@ define TI_GFX_INSTALL_STAGING_CMDS
 endef
 
 define TI_GFX_INSTALL_KM_CMDS
-	$(MAKE) $(TI_GFX_KM_MAKE_OPTS) -C $(@D)/GFX_Linux_KM install
+	$(TARGET_MAKE_ENV) $(MAKE) $(TI_GFX_KM_MAKE_OPTS) -C $(@D)/GFX_Linux_KM install
 endef
 
 define TI_GFX_INSTALL_BINS_CMDS
@@ -196,9 +196,6 @@ define TI_GFX_INSTALL_INIT_SYSTEMD
 		$(TARGET_DIR)/usr/lib/systemd/scripts/ti-gfx
 	$(INSTALL) -D -m 644 package/ti-gfx/ti-gfx.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/ti-gfx.service
-	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
-	ln -sf ../../../../usr/lib/systemd/system/ti-gfx.service \
-		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ti-gfx.service
 endef
 
 define TI_GFX_INSTALL_TARGET_CMDS

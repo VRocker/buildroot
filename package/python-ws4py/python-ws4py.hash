@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi?:action=show_md5&digest=6b47e33cbd13f5c134b04f2a44a480ad, sha256 locally computed
-md5     6b47e33cbd13f5c134b04f2a44a480ad  ws4py-0.3.4.tar.gz
-sha256  85d5c01bb0d031e151a32fad56094caf54e20c2ddb51cf25b5709421ff92d007  ws4py-0.3.4.tar.gz
+# md5, sha256 from https://pypi.org/pypi/ws4py/json
+md5	68e0cfae9659dd059ff7e7a8218af548  ws4py-0.5.1.tar.gz
+sha256	29d073d7f2e006373e6a848b1d00951a1107eb81f3742952be905429dc5a5483  ws4py-0.5.1.tar.gz
+# Locally computed sha256 checksums
+sha256	3c98d9e820de01b1ae3be846419700ab9cefa22b09aa0ef441b3bfd5613c3ba1  LICENSE

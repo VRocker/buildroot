@@ -4,11 +4,10 @@
 #
 ################################################################################
 
-CRUDINI_VERSION = 0.7
-CRUDINI_SOURCE = crudini-$(CRUDINI_VERSION).tar.gz
-CRUDINI_SITE = https://pypi.python.org/packages/source/c/crudini
+CRUDINI_VERSION = 0.9.3
+CRUDINI_SITE = $(call github,pixelb,crudini,$(CRUDINI_VERSION))
 CRUDINI_SETUP_TYPE = setuptools
-CRUDINI_LICENSE = GPLv2
+CRUDINI_LICENSE = GPL-2.0
 CRUDINI_LICENSE_FILES = COPYING
 
 $(eval $(python-package))

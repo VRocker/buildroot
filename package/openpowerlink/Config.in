@@ -50,7 +50,6 @@ config BR2_PACKAGE_OPENPOWERLINK_STACK_MONOLITHIC_USER_STACK_LIB
 config BR2_PACKAGE_OPENPOWERLINK_STACK_USERSPACE_DAEMON_LIB
 	bool "user-space pcap daemon"
 	select BR2_PACKAGE_LIBPCAP
-	select BR2_PACKAGE_OPENPOWERLINK_PCAP_DAEMON
 	help
 	  Compile openPOWERLINK application library which contains the
 	  interface to a Linux user space driver, and the Linux user
@@ -87,11 +86,11 @@ endchoice
 
 if BR2_PACKAGE_OPENPOWERLINK_STACK_KERNEL_STACK_LIB
 
-choice
-	prompt "select Ethernet Powerlink Driver"
+menu "Ethernet drivers"
 
 config BR2_PACKAGE_OPENPOWERLINK_KERNEL_DRIVER_82573
 	bool "Intel 82573"
+	default y
 
 config BR2_PACKAGE_OPENPOWERLINK_KERNEL_DRIVER_8255x
 	bool "Intel 8255x"
@@ -105,13 +104,13 @@ config BR2_PACKAGE_OPENPOWERLINK_KERNEL_DRIVER_RTL8111
 config BR2_PACKAGE_OPENPOWERLINK_KERNEL_DRIVER_RTL8139
 	bool "Realtek RTL-8139"
 
-endchoice
+endmenu
 
 endif # BR2_PACKAGE_OPENPOWERLINK_STACK_KERNEL_STACK_LIB
 
 config BR2_PACKAGE_OPENPOWERLINK_KERNEL_PCIE_DRIVER
-	depends on BR2_PACKAGE_OPENPOWERLINK_STACK_KERNEL_PCIE_STACK_LIB
 	bool "PCIe Powerlink Driver"
+	depends on BR2_PACKAGE_OPENPOWERLINK_STACK_KERNEL_PCIE_STACK_LIB
 
 menu "demos"
 

@@ -4,10 +4,11 @@
 #
 ################################################################################
 
-PYTHON_DOMINATE_VERSION = acb02c7c71e353e5dfbc905d506b54908533027e
-PYTHON_DOMINATE_SITE = $(call github,Knio,dominate,$(PYTHON_DOMINATE_VERSION))
+PYTHON_DOMINATE_VERSION = 2.4.0
+PYTHON_DOMINATE_SOURCE = dominate-$(PYTHON_DOMINATE_VERSION).tar.gz
+PYTHON_DOMINATE_SITE = https://files.pythonhosted.org/packages/46/dd/0fde17069c908951941475eee110c84467591caa1cd8ca30136294c26621
 PYTHON_DOMINATE_SETUP_TYPE = setuptools
-PYTHON_DOMINATE_LICENSE = LGPLv3+
+PYTHON_DOMINATE_LICENSE = LGPL-3.0+
 PYTHON_DOMINATE_LICENSE_FILES = LICENSE.txt
 
 $(eval $(python-package))

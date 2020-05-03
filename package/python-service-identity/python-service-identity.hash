@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi?:action=show_md5&digest=cea0b0156d73b025ecef660fb51f0d9a, sha256 locally computed.
-md5	cea0b0156d73b025ecef660fb51f0d9a  service_identity-14.0.0.tar.gz
-sha256	3105a319a7c558490666694f599be0c377ad54824eefb404cde4ce49e74a4f5a  service_identity-14.0.0.tar.gz
+# md5, sha256 from https://pypi.org/pypi/service_identity/json
+md5	c6b8bac93e7d899a1da313a19cc6570a  service_identity-18.1.0.tar.gz
+sha256	0858a54aabc5b459d1aafa8a518ed2081a285087f349fe3e55197989232e2e2d  service_identity-18.1.0.tar.gz
+# Locally computed sha256 checksums
+sha256	c5075126e1272b176504e36af369781a95c5c1124239da8e4f61b0f9c15a56cf  LICENSE

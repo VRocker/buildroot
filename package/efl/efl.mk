@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-EFL_VERSION = 1.17.2
+EFL_VERSION = 1.22.3
 EFL_SOURCE = efl-$(EFL_VERSION).tar.xz
 EFL_SITE = http://download.enlightenment.org/rel/libs/efl
-EFL_LICENSE = BSD-2c, LGPLv2.1+, GPLv2+
+EFL_LICENSE = BSD-2-Clause, LGPL-2.1+, GPL-2.0+, FTL, MIT
 EFL_LICENSE_FILES = \
 	COMPLIANCE \
 	COPYING \
@@ -15,41 +15,67 @@ EFL_LICENSE_FILES = \
 	licenses/COPYING.FTL \
 	licenses/COPYING.GPL \
 	licenses/COPYING.LGPL \
+	licenses/COPYING.NGINX-MIT \
 	licenses/COPYING.SMALL
 
 EFL_INSTALL_STAGING = YES
 
 EFL_DEPENDENCIES = host-pkgconf host-efl host-luajit dbus freetype \
-	jpeg luajit udev util-linux zlib
+	jpeg luajit lz4 zlib
 
 # Configure options:
-# --disable-cxx-bindings: disable C++11 bindings.
 # --disable-lua-old: build elua for the target.
 # --disable-sdl: disable sdl2 support.
-# --disable-systemd: disable systemd support.
+# --disable-spectre: disable spectre image loader.
 # --disable-xinput22: disable X11 XInput v2.2+ support.
-# --with-opengl=none: disable opengl support.
+# --disable-vnc-server: remove libvncserver dependency.
+# --enable-liblz4: use liblz4 from lz4 package.
+# --with-net-control=none: disable connman networkmanager.
+# --with-doxygen: disable doxygen documentation
 EFL_CONF_OPTS = \
-	--with-edje-cc=$(HOST_DIR)/usr/bin/edje_cc \
-	--with-elua=$(HOST_DIR)/usr/bin/elua \
-	--with-eolian-gen=$(HOST_DIR)/usr/bin/eolian_gen \
-	--disable-cxx-bindings \
+	--with-edje-cc=$(HOST_DIR)/bin/edje_cc \
+	--with-eet-eet=$(HOST_DIR)/bin/eet \
+	--with-eldbus_codegen=$(HOST_DIR)/bin/eldbus-codegen \
+	--with-elementary-codegen=$(HOST_DIR)/bin/elementary_codegen \
+	--with-elm-prefs-cc=$(HOST_DIR)/bin/elm_prefs_cc \
+	--with-elua=$(HOST_DIR)/bin/elua \
+	--with-eolian-gen=$(HOST_DIR)/bin/eolian_gen \
+	--disable-image-loader-jp2k \
+	--with-net-control=none \
 	--disable-lua-old \
 	--disable-sdl \
-	--disable-systemd \
+	--disable-spectre \
 	--disable-xinput22 \
-	--with-opengl=none
+	--disable-vnc-server \
+	--enable-liblz4 \
+	--with-doxygen=no
 
-# Disable untested configuration warning.
-ifeq ($(BR2_PACKAGE_EFL_HAS_RECOMMENDED_CONFIG),)
-EFL_CONF_OPTS += --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-abb
+ifeq ($(BR2_PACKAGE_EFL_EOLIAN_CPP),y)
+EFL_CONF_OPTS += --enable-cxx-bindings \
+	--with-eolian-cxx=$(HOST_DIR)/bin/eolian_cxx
+else
+EFL_CONF_OPTS += --disable-cxx-bindings
 endif
 
-ifeq ($(BR2_PACKAGE_UTIL_LINUX_LIBMOUNT),y)
+ifeq ($(BR2_PACKAGE_EFL_EEZE),y)
+EFL_DEPENDENCIES += udev
+EFL_CONF_OPTS += --enable-libeeze
+else
+EFL_CONF_OPTS += --disable-libeeze
+endif
+
+ifeq ($(BR2_PACKAGE_EFL_UTIL_LINUX_LIBMOUNT),y)
 EFL_DEPENDENCIES += util-linux
 EFL_CONF_OPTS += --enable-libmount
 else
 EFL_CONF_OPTS += --disable-libmount
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+EFL_CONF_OPTS += --enable-systemd
+EFL_DEPENDENCIES += systemd
+else
+EFL_CONF_OPTS += --disable-systemd
 endif
 
 ifeq ($(BR2_PACKAGE_FONTCONFIG),y)
@@ -127,11 +153,11 @@ else
 EFL_CONF_OPTS += --with-crypto=none
 endif # BR2_PACKAGE_OPENSSL
 
-ifeq ($(BR2_PACKAGE_WAYLAND),y)
-EFL_DEPENDENCIES += wayland libxkbcommon
-EFL_CONF_OPTS += --enable-wayland
+ifeq ($(BR2_PACKAGE_EFL_ELPUT),y)
+EFL_CONF_OPTS += --enable-elput
+EFL_DEPENDENCIES += libinput
 else
-EFL_CONF_OPTS += --disable-wayland
+EFL_CONF_OPTS += --disable-elput
 endif
 
 ifeq ($(BR2_PACKAGE_EFL_FB),y)
@@ -161,6 +187,36 @@ EFL_DEPENDENCIES += \
 else
 EFL_CONF_OPTS += --with-x11=none
 endif
+
+ifeq ($(BR2_PACKAGE_EFL_OPENGL),y)
+EFL_CONF_OPTS += --with-opengl=full
+EFL_DEPENDENCIES += libgl
+# OpenGL ES requires EGL
+else ifeq ($(BR2_PACKAGE_EFL_OPENGLES),y)
+EFL_CONF_OPTS += --with-opengl=es --enable-egl
+EFL_DEPENDENCIES += libegl libgles
+else ifeq ($(BR2_PACKAGE_EFL_OPENGL_NONE),y)
+EFL_CONF_OPTS += --with-opengl=none
+endif
+
+ifeq ($(BR2_PACKAGE_EFL_DRM),y)
+EFL_CONF_OPTS += --enable-drm
+EFL_DEPENDENCIES += libdrm libegl mesa3d
+else
+EFL_CONF_OPTS += --disable-drm
+endif
+
+# The EFL Wayland support requires Evas GLES DRM engine support
+# which depends on wayland-client to build.
+# So enable gl_drm only when wayland support is selected.
+ifeq ($(BR2_PACKAGE_EFL_WAYLAND),y)
+EFL_DEPENDENCIES += wayland wayland-protocols
+EFL_CONF_OPTS += --enable-wayland --enable-gl-drm
+else
+EFL_CONF_OPTS += --disable-wayland --disable-gl-drm
+endif
+
+EFL_DEPENDENCIES += $(if $(BR2_PACKAGE_LIBXKBCOMMON),libxkbcommon)
 
 # Loaders that need external dependencies needs to be --enable-XXX=yes
 # otherwise the default is '=static'.
@@ -193,18 +249,50 @@ else
 EFL_CONF_OPTS += --disable-image-loader-tiff
 endif
 
-ifeq ($(BR2_PACKAGE_EFL_JP2K),y)
-EFL_CONF_OPTS += --enable-image-loader-jp2k=yes
-EFL_DEPENDENCIES += openjpeg
-else
-EFL_CONF_OPTS += --disable-image-loader-jp2k
-endif
-
 ifeq ($(BR2_PACKAGE_EFL_WEBP),y)
 EFL_CONF_OPTS += --enable-image-loader-webp=yes
 EFL_DEPENDENCIES += webp
 else
 EFL_CONF_OPTS += --disable-image-loader-webp
+endif
+
+ifeq ($(BR2_PACKAGE_POPPLER),y)
+# poppler needs c++11
+EFL_CONF_ENV += CXXFLAGS="$(TARGET_CXXFLAGS) -std=c++11"
+EFL_DEPENDENCIES += poppler
+EFL_CONF_OPTS += --enable-poppler
+else
+EFL_CONF_OPTS += --disable-poppler
+endif
+
+ifeq ($(BR2_PACKAGE_EFL_LIBRAW),y)
+EFL_DEPENDENCIES += libraw
+EFL_CONF_OPTS += --enable-libraw
+else
+EFL_CONF_OPTS += --disable-libraw
+endif
+
+ifeq ($(BR2_PACKAGE_EFL_SVG),y)
+EFL_DEPENDENCIES += librsvg cairo
+EFL_CONF_OPTS += --enable-librsvg
+else
+EFL_CONF_OPTS += --disable-librsvg
+endif
+
+ifeq ($(BR2_PACKAGE_UPOWER),)
+# upower ecore system module is only useful if upower
+# dbus service is available.
+# It's not essential, only used to notify applications
+# of power state, such as low battery or AC power, so
+# they can adapt their power consumption.
+define EFL_HOOK_REMOVE_UPOWER
+	rm -fr $(TARGET_DIR)/usr/lib/ecore/system/upower
+endef
+EFL_POST_INSTALL_TARGET_HOOKS = EFL_HOOK_REMOVE_UPOWER
+endif
+
+ifeq ($(BR2_PACKAGE_LIBUNWIND),y)
+EFL_DEPENDENCIES += libunwind
 endif
 
 $(eval $(autotools-package))
@@ -216,7 +304,8 @@ $(eval $(autotools-package))
 ################################################################################
 
 # We want to build only some host tools used later in the build.
-# Actually we want: edje_cc, embryo_cc and eet.
+# Actually we want: edje_cc, eet and embryo_cc. eolian_cxx is built only
+# if selected for the target.
 
 # Host dependencies:
 # * host-dbus: for Eldbus
@@ -236,7 +325,6 @@ HOST_EFL_DEPENDENCIES = \
 
 # Configure options:
 # --disable-audio, --disable-multisense remove libsndfile dependency.
-# --disable-cxx-bindings: disable C++11 bindings.
 # --disable-fontconfig: remove dependency on fontconfig.
 # --disable-fribidi: remove dependency on libfribidi.
 # --disable-gstreamer1: remove dependency on gtreamer 1.0.
@@ -244,30 +332,60 @@ HOST_EFL_DEPENDENCIES = \
 # --disable-libmount: remove dependency on host-util-linux libmount.
 # --disable-lua-old: build elua for the host.
 # --disable-physics: remove Bullet dependency.
+# --disable-poppler: disable poppler image loader.
+# --disable-spectre: disable spectre image loader.
+# --disable-systemd: disable systemd dependency.
+# --disable-vnc-server: remove libvncserver dependency.
 # --enable-image-loader-gif=no: disable Gif dependency.
 # --enable-image-loader-tiff=no: disable Tiff dependency.
 # --with-crypto=none: remove dependencies on openssl or gnutls.
+# --with-doxygen: disable doxygen documentation
+# --with-net-control=none: disable connman networkmanager.
 # --with-x11=none: remove dependency on X.org.
-#   Yes I really know what I am doing.
 HOST_EFL_CONF_OPTS += \
 	--disable-audio \
-	--disable-cxx-bindings \
 	--disable-fontconfig \
 	--disable-fribidi \
 	--disable-gstreamer1 \
 	--disable-libeeze \
 	--disable-libmount \
+	--disable-libraw \
+	--disable-librsvg \
 	--disable-lua-old \
 	--disable-multisense \
 	--disable-physics \
+	--disable-poppler \
+	--disable-spectre \
+	--disable-systemd \
+	--disable-xcf \
+	--disable-vnc-server \
 	--enable-image-loader-gif=no \
 	--enable-image-loader-jpeg=yes \
 	--enable-image-loader-png=yes \
 	--enable-image-loader-tiff=no \
 	--with-crypto=none \
+	--with-doxygen=no \
 	--with-glib=yes \
+	--with-net-control=none \
 	--with-opengl=none \
-	--with-x11=none \
-	--enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-abb
+	--with-x11=none
+
+# Enable Eolian language bindings to provide eolian_cxx tool for the
+# host which is required to build Eolian language bindings for the
+# target.
+ifeq ($(BR2_PACKAGE_EFL_EOLIAN_CPP),y)
+HOST_EFL_CONF_OPTS += --enable-cxx-bindings
+else
+HOST_EFL_CONF_OPTS += --disable-cxx-bindings
+endif
+
+# Always disable upower system module from host as it's
+# not useful and would try to use the output/host/var
+# system bus which is non-existent and does not contain
+# any upower service in it.
+define HOST_EFL_HOOK_REMOVE_UPOWER
+	rm -fr $(HOST_DIR)/lib/ecore/system/upower
+endef
+HOST_EFL_POST_INSTALL_HOOKS = HOST_EFL_HOOK_REMOVE_UPOWER
 
 $(eval $(host-autotools-package))

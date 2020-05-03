@@ -1,7 +1,12 @@
-# Hashes from: http://www.cpan.org/src/5.0/perl-5.22.2.tar.bz2.{md5,sha1,sha256}.txt
-md5    24ec0b41fdd1a4cce0e66811ae1f5e1b                                 perl-5.22.2.tar.bz2
-sha1   e2f465446dcd45a7fa3da696037f9ebe73e78e55                         perl-5.22.2.tar.bz2
-sha256 f2322b9b04fe0cdbca9fe755360da04892cb6483d44959457cfebc0bcddc8058 perl-5.22.2.tar.bz2
+# Hashes from: http://www.cpan.org/src/5.0/perl-5.30.2.tar.xz.{md5,sha1,sha256}.txt
+md5  4bfa12b528522a50de0470b8b70b9b3b  perl-5.30.2.tar.xz
+sha1  d82cdaa610a3e749e821fc77004b1b4bfd5ebd28  perl-5.30.2.tar.xz
+sha256  a1aa88bd6fbbdc2e82938afbb76c408b0ea847317737b712dc196cc7907a5259  perl-5.30.2.tar.xz
 
-# No upstream hashes for the following
-sha256 250ab6e6c034a8b7ae447fa2b453fa0b61ebb7db4d039eba60c52e44ab5899bd perl-5.22.1-cross-1.0.2.tar.gz
+# Hashes from: https://github.com/arsv/perl-cross/releases/download/1.3.3/perl-cross-1.3.3.hash
+sha256  3cea71d443cd28c6aa3c3c79d6db38267303cfac8e54b8a6d7ef8d448deefb25  perl-cross-1.3.3.tar.gz
+
+# Locally calculated
+sha256  dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2  Artistic
+sha256  d77d235e41d54594865151f4751e835c5a82322b0e87ace266567c3391a4b912  Copying
+sha256  4916e95d32b84e07c045d839646f74996f577e5f497bbba8177a94b31415cee7  README
